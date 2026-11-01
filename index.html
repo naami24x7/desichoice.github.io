@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en-IN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Desi Choice – Today's best Amazon India deals</title>
+<meta name="description" content="Roz ke best Amazon India offers: top discounts, daily essentials, trending aur category-wise deals.">
+<style>
+:root{--bg:#fafaf7;--card:#fff;--text:#1c1b19;--mut:#6d6a63;--line:#e7e4dc;--acc:#e8590c;--green:#15803d}
+@media (prefers-color-scheme:dark){:root{--bg:#141311;--card:#1d1c19;--text:#f2efe8;--mut:#a29e93;--line:#2c2a26;--acc:#ff8a4c;--green:#4ade80}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{padding:18px 16px 6px;max-width:1100px;margin:auto}h1{margin:0;font-size:22px}h1 b{color:var(--acc)}
+.sub{color:var(--mut);font-size:13px;margin-top:2px}
+main{max-width:1100px;margin:auto;padding:0 12px 40px}
+h2{font-size:17px;margin:22px 4px 8px}
+.strip{display:flex;gap:10px;overflow-x:auto;padding:4px;scroll-snap-type:x proximity}
+.strip .card{min-width:150px;max-width:150px;scroll-snap-align:start}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.card img{width:100%;height:130px;object-fit:contain;background:#fff;border-radius:8px}
+.nm{font-size:12.5px;margin:8px 0 4px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:48px}
+.pr{font-size:14px;font-weight:700}.pr s{font-weight:400;color:var(--mut);font-size:12px;margin-left:4px}
+.off{color:var(--green);font-weight:700;font-size:12.5px}.row{display:flex;justify-content:space-between;align-items:center;margin-top:auto;padding-top:4px}
+.btn{margin-top:8px;text-align:center;background:var(--acc);color:#fff;border-radius:8px;padding:6px 0;font-size:12.5px;font-weight:700}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:4px}.tabs button{flex:none;border:1px solid var(--line);background:var(--card);color:var(--text);border-radius:999px;padding:6px 12px;font-size:13px;cursor:pointer}
+.tabs button.on{background:var(--acc);color:#fff;border-color:transparent}
+.note{color:var(--mut);font-size:12.5px;padding:8px 4px}
+footer{max-width:1100px;margin:auto;padding:12px 16px 30px;color:var(--mut);font-size:12px;border-top:1px solid var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Desi <b>Choice</b></h1>
+  <div class="sub" id="upd">Loading today's deals…</div>
+</header>
+<main>
+  <h2>🔥 Top offers</h2><div class="strip" id="hot"></div>
+  <h2 id="trend-h" hidden>✨ Trending now</h2><div class="strip" id="trend"></div>
+  <h2>🛒 Daily essentials</h2><div class="grid" id="ess"></div>
+  <h2>📂 Category-wise top offers</h2>
+  <div class="tabs" id="tabs"></div><div class="grid" id="cat"></div>
+  <div class="note" id="msg"></div>
+</main>
+<footer>
+  As an Amazon Associate we earn from qualifying purchases. Prices and discounts are as seen on amazon.in when this page was last updated and can change at any time – the price on Amazon at checkout is final.
+</footer>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+  function rs(v){var n=parseFloat(String(v).replace(/,/g,''));return isFinite(n)?'₹'+Math.round(n).toLocaleString('en-IN'):''}
+  function safeLink(u){return /^https:\/\/www\.amazon\.in\//.test(u||'')?u:'#'}
+  function card(i){
+    return '<a class="card" href="'+esc(safeLink(i.link))+'" target="_blank" rel="sponsored noopener">'
+      +'<img loading="lazy" alt="" src="'+esc(i.img)+'">'
+      +'<div class="nm">'+esc(i.name)+'</div>'
+      +'<div class="row"><span class="pr">'+rs(i.now)+(i.was?'<s>'+rs(i.was)+'</s>':'')+'</span><span class="off">-'+(i.pct|0)+'%</span></div>'
+      +'<div class="btn">View on Amazon</div></a>';
+  }
+  function fill(id,list,max){var el=$(id);el.innerHTML=(list||[]).slice(0,max||60).map(card).join('')}
+  function get(u){return fetch(u,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+  var FRESH_MS=30*3600*1000;
+  function fresh(list){var now=Date.now();return (list||[]).filter(function(i){return !i.t||now-i.t*1000<FRESH_MS})}
+  get('guides/hot.json').then(function(d){
+    fill('hot',fresh(d.hot),30);
+    var t=fresh(d.trend);if(t.length){$('trend-h').hidden=false;fill('trend',t,36)}
+    fill('ess',fresh(d.ess),60);
+    var age=(Date.now()-Date.parse(d.updated))/36e5;
+    $('upd').textContent='Updated '+(isFinite(age)?(age<1?'abhi abhi':Math.round(age)+' ghante pehle'):'')+' · Amazon India';
+    if(age>30)$('msg').textContent='Feed thodi purani hai – naye deals aate hi yahan update ho jayenge.';
+  }).catch(function(){$('upd').textContent='Deals abhi load nahi hue – thodi der baad dekho.'});
+  get('guides/offers.json').then(function(d){
+    var cats=d.cats||{},keys=Object.keys(cats).filter(function(k){return fresh(cats[k]).length});
+    if(!keys.length)return;
+    $('tabs').innerHTML=keys.map(function(k,n){var l=(cats[k][0]||{});return '<button data-k="'+esc(k)+'"'+(n?'':' class="on"')+'>'+esc((l.icon||'')+' '+(l.label||k))+'</button>'}).join('');
+    function show(k){fill('cat',fresh(cats[k]),40);Array.prototype.forEach.call($('tabs').children,function(b){b.className=b.getAttribute('data-k')===k?'on':''})}
+    $('tabs').onclick=function(e){var b=e.target.closest('button');if(b)show(b.getAttribute('data-k'))};
+    show(keys[0]);
+  }).catch(function(){});
+})();
+</script>
+</body>
+</html>
